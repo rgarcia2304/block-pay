@@ -9,8 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@babel/runtime": "^7.27.0",
+    "next": "15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.0"
+    "styled-components": "^6.1.17"
+  },
+  "devDependencies": {
+    "babel-plugin-styled-components": "^2.1.4"
   }
 }
