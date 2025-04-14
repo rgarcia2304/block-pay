@@ -2,25 +2,26 @@ import React from 'react';
 import { HiOutlineCubeTransparent } from "react-icons/hi";
 import styled from 'styled-components';
 
-const Transparent = () => {
+const Transparent = ({ highlighted }) => {
   return (
-    <Square>
+    <Square highlighted={highlighted}>
       <HiOutlineCubeTransparent />
     </Square>
   );
 };
 
 const Square = styled.div`
-  
-
-  background-color: black; 
-  color:  #cf89ff ;
-  border-radius: 4px; // Adjust for square or rounded corners
+  background-color: black;
+  color: ${({ highlighted }) => (highlighted ? 'white' : '#cf89ff')};
+  border-radius: 4px;
   text-decoration: none;
+
   svg {
     width: 100px;
-    height: 100px; 
+    height: 100px;
+    transition: color 0.3s ease, filter 0.3s ease;
   }
+
   &:hover {
     color: white;
   }
