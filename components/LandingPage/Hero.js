@@ -6,6 +6,7 @@ import Pay from './Pay';
 import Fair from './Fair';
 import Transparent from './Transparent';
 import Fast from './Fast';
+import HomeButton from '../ButtonsInfo/HomeButton';
 import React, { useState, useEffect, useRef } from "react";
 
 const word_lst = ["fast", "transparent", "fair"];
@@ -73,7 +74,11 @@ const Hero = ({ scrollRef }) => {
         <Transparent highlighted={highlightedWord === "transparent"} />
         <Fair highlighted={highlightedWord === "fair"} />
       </IconsContainer>
+      <ButtonContainer>
 
+      <HomeButton></HomeButton>
+      </ButtonContainer>
+       
       <SummaryContainer ref={scrollRef}>
         <Summary>We make it as easy as</Summary>
       </SummaryContainer>
@@ -86,7 +91,6 @@ const Hero = ({ scrollRef }) => {
         <Pay />
       </IconsContainer>
 
-      {/* Animated Sections */}
       <AnimatedContainer ref={groupRef} inView={groupInView}>
         <Right_side_div>
           <Headeraboutcont>Form a payment group</Headeraboutcont>
@@ -134,18 +138,26 @@ const Section = styled.section`
   width: 100%;
 `;
 
-
-const Container = styled.div`
+const ButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-top: 100px;
   color: #cf89ff;
+
+`
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+  color: #cf89ff;
 `;
 
 const SummaryContainer = styled.div`
-  margin-top: 100px;
+  margin-top: 150px;
   display: flex;
   flex-direction: row;
   font-family: sans-serif;

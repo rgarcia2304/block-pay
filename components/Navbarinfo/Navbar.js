@@ -3,9 +3,12 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import Home from './Home';
 import { Menu, X } from 'lucide-react';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 const Navbar = ({ scrollTargetRef }) => {
   const [open, setOpen] = useState(false);
+
 
   return (
     <Nav>
@@ -19,7 +22,7 @@ const Navbar = ({ scrollTargetRef }) => {
         <NavItem href="/about">About</NavItem>
         <NavItem href="/contact">Contact</NavItem>
         <GetStarted onClick={() => scrollTargetRef?.current?.scrollIntoView({ behavior: 'smooth' })}>
-          Get Started
+          How it Works
         </GetStarted>
       </Right_Items>
     </Nav>
