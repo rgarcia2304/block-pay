@@ -3,8 +3,9 @@ import Image from "next/image";
 import {styled} from 'styled-components'
 import Navbar from "@/components/Navbarinfo/Navbar";
 import React, { useRef } from 'react';
-import Hero from "@/components/ContactPage/Hero";
+import Hero from "@/components/AboutPage/Hero";
 import SNavbar from "@/components/Navbarinfo/SNavbar";
+
 
 
 

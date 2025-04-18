@@ -11,9 +11,10 @@ const HomeButton = () => {
 };
 
 const HomeButtons = styled(Link)`
-      background-color:white; 
+      font-family: sans-serif;
+      background-color: #cf89ff;
       border: none;
-      color:  #cf89ff;
+      color:  white;
       padding: 10px 15px;
       text-align: center;
       border-radius:12px;
@@ -22,8 +23,8 @@ const HomeButtons = styled(Link)`
       font-weight: 600;
 
        &:hover {
-    background-color: #cf89ff; 
-    color: black;
+    background-color: grey ; 
+    color: white;
 
   }
 
