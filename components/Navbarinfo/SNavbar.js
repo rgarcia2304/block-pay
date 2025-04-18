@@ -51,6 +51,7 @@ const Right_Items = styled.div`
   display: flex;
   gap: 20px;
   align-items: center;
+  margin-right: 5%;
 
   @media (max-width: 768px) {
     position: absolute;

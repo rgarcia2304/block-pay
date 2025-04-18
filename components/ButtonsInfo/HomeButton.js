@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const HomeButton = () => {
   return (
-    <HomeButtons href="/">
+    <HomeButtons href="/stage1">
       Get Started
     </HomeButtons>
   );
