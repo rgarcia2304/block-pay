@@ -26,7 +26,7 @@ const useInView = (options = {}) => {
   return [ref, inView];
 };
 
-const Hero = () => {
+const Hero = ({ scrollRef }) => {
   const [highlightedWord, setHighlightedWord] = useState(word_lst[0]);
 
   const [groupRef, groupInView] = useInView({ threshold: 0.2 });
@@ -74,7 +74,7 @@ const Hero = () => {
         <Fair highlighted={highlightedWord === "fair"} />
       </IconsContainer>
 
-      <SummaryContainer>
+      <SummaryContainer ref={scrollRef}>
         <Summary>We make it as easy as</Summary>
       </SummaryContainer>
 
@@ -128,11 +128,12 @@ const Hero = () => {
   );
 };
 
-// Styled Components
+
 
 const Section = styled.section`
   width: 100%;
 `;
+
 
 const Container = styled.div`
   display: flex;
