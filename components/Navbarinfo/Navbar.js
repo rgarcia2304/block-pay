@@ -5,6 +5,7 @@ import Home from './Home';
 import { Menu, X } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import MaskMeta from './Metamask';
 
 const Navbar = ({ scrollTargetRef }) => {
   const [open, setOpen] = useState(false);
@@ -21,6 +22,7 @@ const Navbar = ({ scrollTargetRef }) => {
         <Home />
         <NavItem href="/about">About</NavItem>
         <NavItem href="/contact">Contact</NavItem>
+        <MaskMeta></MaskMeta>
         <GetStarted onClick={() => scrollTargetRef?.current?.scrollIntoView({ behavior: 'smooth' })}>
           How it Works
         </GetStarted>
@@ -53,6 +55,7 @@ const Right_Items = styled.div`
   display: flex;
   gap: 20px;
   align-items: center;
+  margin-right: 2%;
 
   @media (max-width: 768px) {
     position: absolute;

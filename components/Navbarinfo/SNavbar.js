@@ -5,6 +5,7 @@ import Home from './Home';
 import { Menu, X } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import MaskMeta from './Metamask';
 
 const SNavbar = ({ scrollTargetRef }) => {
   const [open, setOpen] = useState(false);
@@ -21,7 +22,7 @@ const SNavbar = ({ scrollTargetRef }) => {
         <Home />
         <NavItem href="/about">About</NavItem>
         <NavItem href="/contact">Contact</NavItem>
-
+        <MaskMeta></MaskMeta>
       </Right_Items>
     </Nav>
   );
