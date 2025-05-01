@@ -19,11 +19,11 @@ const Hero = ({ scrollRef }) => {
   const [winner,setWinner] = useState(null);
   
   // after you’ve connected and have `provider` and `account`…
-  const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider.getSigner());
+
   const [requiredStakeString, setRequiredStakeString] = useState('');  // e.g. "0.1"
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
-  
+
 
 
   useEffect( ()=> {
@@ -42,10 +42,10 @@ const Hero = ({ scrollRef }) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts",[]);
     const signer = provider.getSigner();
-    const contractInstance = new ethers.Contract(
+    const contract = new ethers.Contract(
       CONTRACT_ADDRESS,CONTRACT_ABI,signer
     );
-    const status = await contractInstance.getGroupSize(1);
+    const status = await contract.getGroupSize(1);
     setGroupSize(status);
     console.log(groupSize);
   }
@@ -165,10 +165,10 @@ const Hero = ({ scrollRef }) => {
   }
 
   async function presentWinner(){
-    const tx = await contract.electDelegate(groupId);
-    await tx.wait();
-    const winner = await contract.currentVoteLeader(groupId);
-    setWinner(winner);
+    await contract.electDelegate(groupId);
+    const w = await contract.currentVoteLeader(groupId);
+    setWinner(w);
+    setStage('completed');
   }
 
 
@@ -194,9 +194,31 @@ const Hero = ({ scrollRef }) => {
       </ButtonContainer>
       <FooterContainer> </FooterContainer>
 
-      {stage === 'stake'} &&{
-        <Header>On to this stage</Header>
-      }
+      {stage === 'stake' && (
+        <StakeComponent
+          members={members}             
+          account={account}             
+          requiredStake={requiredStakeString}
+          onStake={stakeHandler}
+          loading={loading}
+          error={error}
+        />
+      )}
+      
+        {stage === 'vote' && (
+          <VoteComponent
+            members={members}
+            account={account}
+            onVote={votingHandler}
+            loading={loading}
+            error={error}
+          />
+      )}
+
+      {stage === 'completed' && (
+        <ResultsComponent winner={winner} />
+      )}
+  
     </Section>
   );
 };
