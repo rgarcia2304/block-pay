@@ -11,7 +11,7 @@ const Transparent = ({ highlighted }) => {
 };
 
 const Square = styled.div`
-  background-color: black;
+   background-color: black;
   color: ${({ highlighted }) => (highlighted ? 'white' : '#cf89ff')};
   border-radius: 4px;
   text-decoration: none;
@@ -25,6 +25,7 @@ const Square = styled.div`
   &:hover {
     color: white;
   }
-`;
+
+`
 
 export default Transparent;

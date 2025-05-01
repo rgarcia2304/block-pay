@@ -22,7 +22,6 @@ const Navbar = ({ scrollTargetRef }) => {
         <Home />
         <NavItem href="/about">About</NavItem>
         <NavItem href="/contact">Contact</NavItem>
-        <MaskMeta></MaskMeta>
         <GetStarted onClick={() => scrollTargetRef?.current?.scrollIntoView({ behavior: 'smooth' })}>
           How it Works
         </GetStarted>

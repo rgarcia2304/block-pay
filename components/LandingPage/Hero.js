@@ -8,7 +8,7 @@ import Transparent from './Transparent';
 import Fast from './Fast';
 import HomeButton from '../ButtonsInfo/HomeButton';
 import React, { useState, useEffect, useRef } from "react";
-
+import Link from 'next/link';
 const word_lst = ["fast", "transparent", "fair"];
 
 const useInView = (options = {}) => {
@@ -28,6 +28,7 @@ const useInView = (options = {}) => {
 };
 
 const Hero = ({ scrollRef }) => {
+  
   const [highlightedWord, setHighlightedWord] = useState(word_lst[0]);
 
   const [groupRef, groupInView] = useInView({ threshold: 0.2 });
@@ -74,10 +75,11 @@ const Hero = ({ scrollRef }) => {
         <Transparent highlighted={highlightedWord === "transparent"} />
         <Fair highlighted={highlightedWord === "fair"} />
       </IconsContainer>
-      <ButtonContainer>
-
-      <HomeButton></HomeButton>
-      </ButtonContainer>
+      <ButtonContainer> 
+      <Link href="/stage1" passHref>
+      <HomeButton>Get Started</HomeButton>
+    </Link>
+        </ButtonContainer>
        
       <SummaryContainer ref={scrollRef}>
         <Summary>We make it as easy as</Summary>

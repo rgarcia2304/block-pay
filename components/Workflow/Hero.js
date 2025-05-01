@@ -1,12 +1,71 @@
 import styled from 'styled-components';
 import HomeButton from '../ButtonsInfo/HomeButton';
+import SNavbar from "@/components/Navbarinfo/SNavbar";
 import React, { useState, useEffect, useRef } from "react";
-
+import { ethers } from 'ethers';
+import { CONTRACT_ABI,CONTRACT_ADDRESS } from '@/blockchain/contract';
+import Connected from "@/components/LandingPage/Connected";
 
 
 
 const Hero = ({ scrollRef }) => {
+  //functionallity to connect to metamask
+  const [provider,setProvider] = useState(null);
+  const [account,setAccount] = useState(null);
+  const[isConnected, setIsConnected] = useState(false);
+  const[groupSize,setGroupSize] = useState(null);
 
+  useEffect( ()=> {
+    getCurrentStatus()
+    if(window.ethereum){
+      window.ethereum.on("accountsChanged",handleAccountsChanged);
+    }
+    return() =>{
+      if(window.ethereum){
+        window.ethereum.removeListener("accountsChanged",handleAccountsChanged);
+      }
+    }
+  })
+
+  async function getCurrentStatus(){
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts",[]);
+    const signer = provider.getSigner();
+    const contractInstance = new ethers.Contract(
+      CONTRACT_ADDRESS,CONTRACT_ABI,signer
+    );
+    const status = await contractInstance.getGroupSize(1);
+    setGroupSize(status);
+    console.log(groupSize);
+  }
+  function handleAccountsChanged(accounts){
+    if(accounts.length > 0 && account != accounts[0]){
+      setAccount(accounts[0]);
+    }
+    else{
+      setIsConnected(false);
+      setAccount(null);
+    }
+  }
+  async function connectToMetamask(){
+    if(window.ethereum){
+      try{
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        setProvider(provider);
+        await provider.send("eth_requestAccounts",[]);
+        const signer = provider.getSigner(); //whos connected to current account
+        const address = await signer.getAddress();
+        setAccount(address);
+        console.log("Metamask Connected: ", address);
+        setIsConnected(true);
+      }catch(err){
+        console.error(err);
+      } 
+    }
+    else{
+      console.error("Metamask is not detected in the browser");
+    }
+  }
 
 
   return (
@@ -16,6 +75,7 @@ const Hero = ({ scrollRef }) => {
         <Header>Stage 1 "Under Construction until Soldity contracts are written" </Header>
         <HeaderBig>Form Your Group</HeaderBig>
       </Container>
+      <ButtonContainer>{isConnected ? (<Connected account = {account} />) : (<HomeButton connectWallet = {connectToMetamask}></HomeButton>)} </ButtonContainer>
       <FooterContainer> </FooterContainer>
     </Section>
   );

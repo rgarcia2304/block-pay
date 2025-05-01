@@ -1,16 +1,16 @@
 import React from 'react';
-import Link  from 'next/link';
 import styled from 'styled-components';
 
-const HomeButton = (props) => {
+const Connected = (props) => {
   return (
-    <HomeButtons onClick = {props.connectWallet}>
-      Get Started
-    </HomeButtons>
+    <ConnectorHeader onClick = {props.connectWallet}>
+      You are connected to Metamask
+    <WalletInfo> {props.account}   </WalletInfo>
+    </ConnectorHeader>
   );
 };
 
-const HomeButtons = styled.button`
+const ConnectorHeader = styled.div`
       font-family: sans-serif;
       background-color: #cf89ff;
       border: none;
@@ -27,7 +27,10 @@ const HomeButtons = styled.button`
     color: white;
 
   }
+`;
+
+const WalletInfo = styled.p`
 
 `;
 
-export default HomeButton;
+export default Connected;
