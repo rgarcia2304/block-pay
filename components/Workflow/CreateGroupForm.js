@@ -1,5 +1,4 @@
 import Link  from 'next/link';
-import { IoMdHome } from 'react-icons/io'; // Importing a home icon from react-icons
 import styled from 'styled-components';
 import React, { useState } from 'react';
 
@@ -91,6 +90,7 @@ const Textarea = styled.textarea`
   border-radius: 4px;
   resize: vertical;
   min-height: 4rem;
+  color: white;
 `;
 
 const Submit = styled.button`

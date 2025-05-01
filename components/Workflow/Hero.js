@@ -15,6 +15,16 @@ const Hero = ({ scrollRef }) => {
   const[isConnected, setIsConnected] = useState(false);
   const[groupSize,setGroupSize] = useState(null);
   const[stage,setStage] = useState("connect");
+  const [groupId, setGroupId] = useState(null);
+  const [winner,setWinner] = useState(null);
+  
+  // after you’ve connected and have `provider` and `account`…
+  const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider.getSigner());
+  const [requiredStakeString, setRequiredStakeString] = useState('');  // e.g. "0.1"
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState('');
+  
+
 
   useEffect( ()=> {
     // getCurrentStatus()
@@ -69,6 +79,98 @@ const Hero = ({ scrollRef }) => {
     }
   }
 
+  async function createGroupHandler({bill,members}){
+
+    //do the conversion to wei
+    const wei = ethers.utils.parseEther(bill);
+    const tx  = await contract.createGroup(wei, members);
+    const receipt = await tx.wait();
+    const id = receipt.events.find(e => e.event === 'GroupCreated').args.id.toNumber();
+    const groupIdNumber = await contract.groupCount()
+    setStage('stake')
+    setGroupId(groupIdNumber)
+
+  }
+
+  async function stakeHandler() {
+    setError('');
+    setLoading(true);
+    try {
+      // 1. kick off the transaction, sending exactly the required stake
+      const wei = ethers.utils.parseEther(requiredStakeString);
+      const tx  = await contract.individualStake(groupId);
+      
+      // 2. wait for it to mine
+      const receipt = await tx.wait();
+      
+      // optional: pull info from the event
+      const evt = receipt.events.find(e => e.event === 'MemberHasStaked');
+      console.log(`Member ${evt.args.payer} staked in group ${evt.args.id}`);
+      
+      // 3. fetch the updated group info
+      // correct destructure
+      const [
+        owner, billAmount, requiredStake,
+        staking_start, staking_deadline,
+        state, stakesAmount, totalStaked,
+        members
+      ] = await contract.getGroupInfo(groupId);
+      if (stakesAmount.toNumber() === members.length) {
+        setStage('vote');
+      }
+
+      // 4. if everyone has now staked, move on
+      if (stakesAmount.toNumber() === members.length) {
+        setStage('vote');
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.errorArgs?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function votingHandler({member}){
+    setError('');
+    setLoading(true);
+    try {
+      // 1. kick off the transaction, sending exactly the required stake
+      const tx  = await contract.voting(groupId,member);
+      
+      // 2. wait for it to mine
+      const receipt = await tx.wait();
+      
+      // 3. fetch the updated group info
+      const [
+        owner,            
+        billAmount,              
+        requiredStake,              
+        staking_start,
+        staking_deadline,              
+        totalStaked,        
+        state,
+        stakesAmount,             
+        members,        
+      ] = await contract.getGroupInfo(groupId);
+      
+    
+
+    } catch (err) {
+      console.error(err);
+      setError(err.errorArgs?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function presentWinner(){
+    const tx = await contract.electDelegate(groupId);
+    await tx.wait();
+    const winner = await contract.currentVoteLeader(groupId);
+    setWinner(winner);
+  }
+
 
   return (
     <Section>
@@ -87,11 +189,14 @@ const Hero = ({ scrollRef }) => {
       )}
 
       {stage === 'create' && (
-        <GroupForm
-        />
+        <GroupForm onSubmit={createGroupHandler} />
       )}
       </ButtonContainer>
       <FooterContainer> </FooterContainer>
+
+      {stage === 'stake'} &&{
+        <Header>On to this stage</Header>
+      }
     </Section>
   );
 };
