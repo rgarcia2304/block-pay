@@ -6,7 +6,9 @@ import { ethers } from 'ethers';
 import { CONTRACT_ABI,CONTRACT_ADDRESS } from '@/blockchain/contract';
 import Connected from "@/components/LandingPage/Connected";
 import GroupForm from './CreateGroupForm';
-
+import StakeComponent from './StakeComponent';
+import VoteComponent from './VoteComponent';
+import ResultsComponent from './Results';
 
 const Hero = ({ scrollRef }) => {
   //functionallity to connect to metamask
@@ -81,14 +83,42 @@ const Hero = ({ scrollRef }) => {
 
   async function createGroupHandler({bill,members}){
 
-    //do the conversion to wei
-    const wei = ethers.utils.parseEther(bill);
-    const tx  = await contract.createGroup(wei, members);
-    const receipt = await tx.wait();
-    const id = receipt.events.find(e => e.event === 'GroupCreated').args.id.toNumber();
-    const groupIdNumber = await contract.groupCount()
-    setStage('stake')
-    setGroupId(groupIdNumber)
+    setError('');
+    setLoading(true);
+    try {
+      // parse bill ("0.3") → wei
+      const wei = ethers.utils.parseEther(bill);
+      const tx  = await contract.createGroup(wei, membersInput);
+      const receipt = await tx.wait();
+
+      // get new group ID from event
+      const id = receipt.events
+        .find(e => e.event === 'GroupCreated')
+        .args.id.toNumber();
+      setGroupId(id);
+
+      // fetch group info to seed members & requiredStake
+      const [
+        ,            // owner
+        ,            // billAmount
+        rawStake,    // requiredStake
+        ,            // staking_start
+        ,            // staking_deadline
+        ,            // state
+        ,            // stakesAmount
+        ,            // totalStaked
+        memberList
+      ] = await contract.getGroupInfo(id);
+
+      setMembers(memberList);
+      setRequiredStakeString(ethers.utils.formatEther(rawStake));
+      setStage('stake');
+    } catch (err) {
+      console.error(err);
+      setError(err.errorArgs?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
 
   }
 
@@ -96,30 +126,22 @@ const Hero = ({ scrollRef }) => {
     setError('');
     setLoading(true);
     try {
-      // 1. kick off the transaction, sending exactly the required stake
       const wei = ethers.utils.parseEther(requiredStakeString);
-      const tx  = await contract.individualStake(groupId);
-      
-      // 2. wait for it to mine
+      const tx  = await contract.individualStake(groupId, { value: wei });
       const receipt = await tx.wait();
-      
-      // optional: pull info from the event
+
+      // optional: log from event
       const evt = receipt.events.find(e => e.event === 'MemberHasStaked');
       console.log(`Member ${evt.args.payer} staked in group ${evt.args.id}`);
-      
-      // 3. fetch the updated group info
-      // correct destructure
-      const [
-        owner, billAmount, requiredStake,
-        staking_start, staking_deadline,
-        state, stakesAmount, totalStaked,
-        members
-      ] = await contract.getGroupInfo(groupId);
-      if (stakesAmount.toNumber() === members.length) {
-        setStage('vote');
-      }
 
-      // 4. if everyone has now staked, move on
+      // re-fetch to see if everyone staked
+      const [
+        , , ,
+        , , ,
+        stakesAmount,
+        ,,
+      ] = await contract.getGroupInfo(groupId);
+
       if (stakesAmount.toNumber() === members.length) {
         setStage('vote');
       }
@@ -135,27 +157,14 @@ const Hero = ({ scrollRef }) => {
     setError('');
     setLoading(true);
     try {
-      // 1. kick off the transaction, sending exactly the required stake
-      const tx  = await contract.voting(groupId,member);
-      
-      // 2. wait for it to mine
-      const receipt = await tx.wait();
-      
-      // 3. fetch the updated group info
-      const [
-        owner,            
-        billAmount,              
-        requiredStake,              
-        staking_start,
-        staking_deadline,              
-        totalStaked,        
-        state,
-        stakesAmount,             
-        members,        
-      ] = await contract.getGroupInfo(groupId);
-      
-    
+      const tx = await contract.voting(groupId, member);
+      await tx.wait();
 
+      // check if on-chain stage = Completed (3)
+      const onChainStage = await contract.getStage(groupId);
+      if (onChainStage === 3) {
+        setStage('completed');
+      }
     } catch (err) {
       console.error(err);
       setError(err.errorArgs?.message || err.message);
@@ -165,68 +174,81 @@ const Hero = ({ scrollRef }) => {
   }
 
   async function presentWinner(){
-    await contract.electDelegate(groupId);
-    const w = await contract.currentVoteLeader(groupId);
-    setWinner(w);
-    setStage('completed');
+    setError('');
+    setLoading(true);
+    try {
+      await contract.electDelegate(groupId);
+      const w = await contract.currentVoteLeader(groupId);
+      setWinner(w);
+      setStage('completed');
+    } catch (err) {
+      console.error(err);
+      setError(err.errorArgs?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
 
   return (
     <Section>
-         
-      <Container>
-        <Header>Stage 1 "Under Construction until Soldity contracts are written" </Header>
-        <HeaderBig>Form Your Group</HeaderBig>
-      </Container>
-      <ButtonContainer>
       {stage === 'connect' && (
+        <> 
         <ButtonContainer>
+        <Header> Start by Clicking the Button</Header>
           <HomeButton connectWallet={connectToMetamask}>
             Connect Wallet
           </HomeButton>
         </ButtonContainer>
+        </>
       )}
 
       {stage === 'create' && (
-        <GroupForm onSubmit={createGroupHandler} />
+        <GroupForm
+          onSubmit={createGroupHandler}
+          loading={loading}
+          error={error}
+        />
       )}
-      </ButtonContainer>
-      <FooterContainer> </FooterContainer>
 
       {stage === 'stake' && (
         <StakeComponent
-          members={members}             
-          account={account}             
+          members={members}
+          account={account}
           requiredStake={requiredStakeString}
           onStake={stakeHandler}
           loading={loading}
           error={error}
         />
       )}
-      
-        {stage === 'vote' && (
-          <VoteComponent
-            members={members}
-            account={account}
-            onVote={votingHandler}
-            loading={loading}
-            error={error}
-          />
+
+      {stage === 'vote' && (
+        <VoteComponent
+          members={members}
+          account={account}
+          onVote={votingHandler}
+          loading={loading}
+          error={error}
+        />
       )}
 
       {stage === 'completed' && (
-        <ResultsComponent winner={winner} />
+        <ResultsComponent
+          winner={winner}
+        />
       )}
-  
     </Section>
   );
+
 };
 
 
 
 const Section = styled.section`
   width: 100%;
+  display:row;
+  justify-content:center;
+  align-items: center;
 `;
 
 const ButtonContainer = styled.div`
@@ -308,7 +330,7 @@ const ImageContainer = styled.div`
 
 const Header = styled.div`
   font-family: sans-serif;
-  font-size: 15px;
+  font-size: 55px;
   color: white;
   text-align: center;
   width: 55%;

@@ -61,9 +61,11 @@ export default function CreateGroupForm({ onSubmit }) {
 }
 
 const Form = styled.form`
+  margin-top: 10%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 50%;
 `;
 
 const Field = styled.div`
