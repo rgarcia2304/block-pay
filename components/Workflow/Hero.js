@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { ethers } from 'ethers';
 import { CONTRACT_ABI,CONTRACT_ADDRESS } from '@/blockchain/contract';
 import Connected from "@/components/LandingPage/Connected";
-
+import GroupForm from './CreateGroupForm';
 
 
 const Hero = ({ scrollRef }) => {
@@ -14,9 +14,10 @@ const Hero = ({ scrollRef }) => {
   const [account,setAccount] = useState(null);
   const[isConnected, setIsConnected] = useState(false);
   const[groupSize,setGroupSize] = useState(null);
+  const[stage,setStage] = useState("connect");
 
   useEffect( ()=> {
-    getCurrentStatus()
+    // getCurrentStatus()
     if(window.ethereum){
       window.ethereum.on("accountsChanged",handleAccountsChanged);
     }
@@ -58,6 +59,7 @@ const Hero = ({ scrollRef }) => {
         setAccount(address);
         console.log("Metamask Connected: ", address);
         setIsConnected(true);
+        setStage("create");
       }catch(err){
         console.error(err);
       } 
@@ -75,7 +77,20 @@ const Hero = ({ scrollRef }) => {
         <Header>Stage 1 "Under Construction until Soldity contracts are written" </Header>
         <HeaderBig>Form Your Group</HeaderBig>
       </Container>
-      <ButtonContainer>{isConnected ? (<Connected account = {account} />) : (<HomeButton connectWallet = {connectToMetamask}></HomeButton>)} </ButtonContainer>
+      <ButtonContainer>
+      {stage === 'connect' && (
+        <ButtonContainer>
+          <HomeButton connectWallet={connectToMetamask}>
+            Connect Wallet
+          </HomeButton>
+        </ButtonContainer>
+      )}
+
+      {stage === 'create' && (
+        <GroupForm
+        />
+      )}
+      </ButtonContainer>
       <FooterContainer> </FooterContainer>
     </Section>
   );
