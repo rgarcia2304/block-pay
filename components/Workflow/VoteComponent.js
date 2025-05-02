@@ -1,82 +1,116 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import styled from "styled-components";
 
 export default function VoteComponent({
   members = [],
-  account,
+  account = "",
+  hasVoted = false,
   onVote,
   loading = false,
-  error = '',
+  error = "",
 }) {
-  // normalize for comparison
-  const lowerMe = account?.toLowerCase();
+  const me       = account.toLowerCase();
+  // remove yourself from the list
+  const others   = members.filter(addr => addr.toLowerCase() !== me);
+  const [voteAddr, setVoteAddr] = useState("");
 
-  // filter out self
-  const choices = members.filter(
-    addr => addr.toLowerCase() !== lowerMe
-  );
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onVote(voteAddr);
+  };
+
+  // if already voted → waiting message
+  if (hasVoted) {
+    return <Waiting> You’ve voted. Waiting for others to vote…</Waiting>;
+  }
 
   return (
     <Container>
-      <Title>Who should pay?</Title>
+      <Title>Vote for who pays</Title>
       {error && <Error>{error}</Error>}
 
-      <List>
-        {choices.map(addr => (
-          <Item key={addr}>
-            <Button
-              onClick={() => onVote(addr)}
-              disabled={loading}
-            >
-              {addr}
-            </Button>
-          </Item>
+      <MembersList>
+        {others.map((addr) => (
+          <Member key={addr}>
+            <Address>{addr}</Address>
+          </Member>
         ))}
-      </List>
+      </MembersList>
 
-      {loading && <Status>Submitting your vote</Status>}
+      <Form onSubmit={handleSubmit}>
+        <Input
+          type="text"
+          placeholder="Enter address from above"
+          value={voteAddr}
+          onChange={(e) => setVoteAddr(e.target.value)}
+        />
+        <Button
+          type="submit"
+          disabled={
+            loading ||
+            !others.map(a => a.toLowerCase()).includes(voteAddr.toLowerCase())
+          }
+        >
+          {loading ? "Submitting vote…" : "Submit Vote"}
+        </Button>
+      </Form>
     </Container>
   );
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
+// Styled components…
 
-const Title = styled.h2`
+const Container   = styled.div`
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+`;
+const Title       = styled.h2`
   color: #cf89ff;
+  margin-bottom: 1rem;
 `;
-
-const List = styled.ul`
+const Error       = styled.div`
+  color: #ff6b6b;
+  margin-bottom: 1rem;
+`;
+const Waiting     = styled.p`
+  font-size: 1.1rem;
+  color: #999;
+`;
+const MembersList = styled.ul`
   list-style: none;
   padding: 0;
+  margin-bottom: 1.5rem;
 `;
-
-const Item = styled.li`
-  margin-bottom: 0.5rem;
+const Member      = styled.li`
+  font-family: monospace;
+  margin: 0.3rem 0;
 `;
-
+const Address     = styled.span`
+  color: white;
+`;
+const Form        = styled.form`
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+`;
+const Input       = styled.input`
+  flex: 1;
+  padding: 0.5rem;
+  font-family: monospace;
+  color: white;
+`;
 const Button = styled.button`
   padding: 0.5rem 1rem;
   background: #cf89ff;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  font-family: monospace;
   &:disabled {
     background: #888;
     cursor: not-allowed;
   }
 `;
 
-const Error = styled.div`
-  color: #ff6b6b;
-`;
-
-const Status = styled.div`
-  color: #999;
-`;
   

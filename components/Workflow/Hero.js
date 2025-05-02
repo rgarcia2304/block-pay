@@ -221,8 +221,8 @@ export default function Hero() {
       {stage === "vote" && (
         <VoteComponent
           members={members}
-          voteStatuses={voteStatuses}
           account={account}
+          hasVoted={ voteStatuses[members.findIndex(a => a.toLowerCase() === account.toLowerCase())] }
           onVote={votingHandler}
           loading={loading}
           error={error}
