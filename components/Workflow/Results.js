@@ -9,6 +9,7 @@ export default function ResultsComponent({ winner }) {
       <Heading>Payout Complete!</Heading>
       <Label>Funds have been sent to:</Label>
       <Winner>{winner}</Winner>
+      <ByeMessage>THANK YOU FOR CHOOSING BLOCK-PAY</ByeMessage>
     </Container>
   );
 }
@@ -26,12 +27,24 @@ const Heading = styled.h2`
 
 const Label = styled.p`
   color: #fff;
+  width:30%
 `;
 
 const Winner = styled.code`
   background: #222;
-  color: #0f0;
+  color: #cf89ff;
   padding: 0.5rem 1rem;
   border-radius: 4px;
-  font-family: monospace;
+  font-family: sans-serif;
+  width:400px;
+`;
+
+const ByeMessage = styled.code`
+  color: #cf89ff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-family: sans-serif;
+  font-weight: 600;
+  width:400px;
+  font-size: 30px;
 `;

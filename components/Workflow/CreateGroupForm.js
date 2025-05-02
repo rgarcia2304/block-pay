@@ -36,7 +36,7 @@ export default function CreateGroupForm({ onSubmit }) {
           id="bill"
           type="text"
           value={bill}
-          placeholder="e.g. 0.3"
+          placeholder="Amount in AVAX"
           onChange={e => setBill(e.target.value)}
           required
         />
@@ -47,7 +47,7 @@ export default function CreateGroupForm({ onSubmit }) {
         <Textarea
           id="members"
           value={membersInput}
-          placeholder="0xabc…,0xdef…,0xghi…"
+          placeholder="place comma seperated addresses here"
           onChange={e => setMembersInput(e.target.value)}
           required
         />
@@ -87,7 +87,7 @@ const Label = styled.label`
 const Input = styled.input`
   padding: 0.5rem;
   border: 1px solid #444;
-  border-radius: 4px;
+  border-radius: 10px;
   color: white;
 `;
 

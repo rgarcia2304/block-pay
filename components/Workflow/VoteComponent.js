@@ -10,7 +10,6 @@ export default function VoteComponent({
   error = "",
 }) {
   const me       = account.toLowerCase();
-  // remove yourself from the list
   const others   = members.filter(addr => addr.toLowerCase() !== me);
   const [voteAddr, setVoteAddr] = useState("");
 
@@ -58,8 +57,6 @@ export default function VoteComponent({
   );
 }
 
-// Styled components…
-
 const Container   = styled.div`
   width: 100%;
   max-width: 480px;
@@ -84,7 +81,7 @@ const MembersList = styled.ul`
   margin-bottom: 1.5rem;
 `;
 const Member      = styled.li`
-  font-family: monospace;
+  font-family: sans-serif;
   margin: 0.3rem 0;
 `;
 const Address     = styled.span`
@@ -94,12 +91,14 @@ const Form        = styled.form`
   display: flex;
   gap: 0.5rem;
   justify-content: center;
+  border-radius: 10px;
 `;
 const Input       = styled.input`
   flex: 1;
   padding: 0.5rem;
-  font-family: monospace;
+  font-family: sans-serif;
   color: white;
+  border-radius: 10px;
 `;
 const Button = styled.button`
   padding: 0.5rem 1rem;
@@ -107,6 +106,7 @@ const Button = styled.button`
   color: white;
   border: none;
   cursor: pointer;
+  border-radius: 10px;
   &:disabled {
     background: #888;
     cursor: not-allowed;

@@ -2,13 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 
 export default function StakeComponent({
-  members = [],               // array of addresses
-  stakeStatuses = [],         // parallel array of booleans
-  account = '',               // connected wallet
-  requiredStake = '0.0',      // e.g. "0.1"
-  onStake,                    // callback to stake
-  loading = false,            // is tx in flight?
-  error = '',                 // error message
+  members = [],               
+  stakeStatuses = [],        
+  account = '',            
+  requiredStake = '0.0',      
+  onStake,                    
+  loading = false,            
+  error = '',                
 }) {
   const lowerMe = account.toLowerCase();
 
@@ -63,7 +63,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: 80%;
+  width: 50%;
 
 `;
 

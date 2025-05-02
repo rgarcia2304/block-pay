@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ethers } from 'ethers';
-
+import { FaConnectdevelop } from "react-icons/fa";
 import HomeButton from '../ButtonsInfo/HomeButton';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/blockchain/contract';
 import GroupForm from './CreateGroupForm';
 import StakeComponent from './StakeComponent';
 import VoteComponent from './VoteComponent';
 import ResultsComponent from './Results';
+import Group from '../LandingPage/Group';
+import { GrStakeholder } from "react-icons/gr";
+import Vote from '../LandingPage/Vote';
+import { GrAtm } from "react-icons/gr";
 
 export default function Hero() {
   const [provider, setProvider]       = useState(null);
@@ -190,6 +194,9 @@ export default function Hero() {
       {stage === "connect" && (
         <>
           <HeaderBig>Connect your wallet</HeaderBig>
+          <Biglogo>
+            <FaConnectdevelop/>
+          </Biglogo>
           <ButtonContainer>
             <HomeButton connectWallet={connectToMetamask}>
               Connect Wallet
@@ -199,14 +206,21 @@ export default function Hero() {
       )}
 
       {stage === "create" && (
+        <>
+        <HeaderBig>Set Bill And Members of Your Group</HeaderBig>
+        <Group></Group>
         <GroupForm
           onSubmit={createGroupHandler}
           loading={loading}
           error={error}
         />
+        </>
       )}
 
       {stage === "stake" && (
+        <>
+        <HeaderBig>Pay your piece</HeaderBig>
+    
         <StakeComponent
           members={members}
           stakeStatuses={stakeStatuses}
@@ -216,9 +230,12 @@ export default function Hero() {
           loading={loading}
           error={error}
         />
+        </>
       )}
 
       {stage === "vote" && (
+        <>
+        <Vote></Vote>
         <VoteComponent
           members={members}
           account={account}
@@ -227,10 +244,17 @@ export default function Hero() {
           loading={loading}
           error={error}
         />
+        </>
       )}
 
       {stage === "completed" && (
-        <ResultsComponent winner={winner} />
+        <>
+        
+          
+          <ResultsComponent winner={winner} />
+          <Biggishlogo><GrAtm></GrAtm></Biggishlogo>
+        </>
+        
       )}
     </Section>
   );
@@ -255,3 +279,36 @@ const HeaderBig = styled.h2`
   font-size: 2rem;
   margin-bottom: 1rem;
 `;
+
+const Biglogo = styled.div`
+background-color: black;
+border-radius: 4px;
+text-decoration: none;
+color:  #cf89ff ;
+svg {
+  width: 300px;
+  height: 300px;
+  transition: color 0.3s ease, filter 0.3s ease;
+}
+
+&:hover {
+  color: white;
+}
+`;
+
+const Biggishlogo = styled.div`
+background-color: black;
+border-radius: 4px;
+text-decoration: none;
+color:  #cf89ff ;
+svg {
+  width: 100px;
+  height: 100px;
+  transition: color 0.3s ease, filter 0.3s ease;
+}
+
+&:hover {
+  color: white;
+}
+`;
+ 
