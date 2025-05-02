@@ -15,7 +15,7 @@ export default function StakeComponent({
   return (
    
     <Container>
-      <Title>Stake your share ({requiredStake} AVAX)</Title>
+      <Title>Stake your share ({requiredStake})</Title>
       {error && <Error>{error}</Error>}
 
       <List>

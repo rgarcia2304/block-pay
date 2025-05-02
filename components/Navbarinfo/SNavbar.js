@@ -3,9 +3,6 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import Home from './Home';
 import { Menu, X } from 'lucide-react';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import MaskMeta from './Metamask';
 
 const SNavbar = ({ scrollTargetRef }) => {
   const [open, setOpen] = useState(false);
@@ -27,16 +24,6 @@ const SNavbar = ({ scrollTargetRef }) => {
   );
 };
 
-const GetStarted = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  text-decoration: none;
-  color: #cf89ff;
-  cursor: pointer;
-  &:hover {
-    color: white;
-  }
-`;
 const NavItem = styled(Link)`
   font-size: 16px;
   font-weight: 600;

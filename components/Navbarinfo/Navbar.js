@@ -3,9 +3,6 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import Home from './Home';
 import { Menu, X } from 'lucide-react';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import MaskMeta from './Metamask';
 
 const Navbar = ({ scrollTargetRef }) => {
   const [open, setOpen] = useState(false);

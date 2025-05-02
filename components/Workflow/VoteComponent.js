@@ -18,7 +18,7 @@ export default function VoteComponent({
     onVote(voteAddr);
   };
 
-  // if already voted → waiting message
+  // if already voted you will then flip to get a waiting message
   if (hasVoted) {
     return <Waiting> You’ve voted. Waiting for others to vote…</Waiting>;
   }
