@@ -13,7 +13,7 @@ export default function StakeComponent({
   const lowerMe = account.toLowerCase();
 
   return (
-    <centerContainer>
+   
     <Container>
       <Title>Stake your share ({requiredStake} AVAX)</Title>
       {error && <Error>{error}</Error>}
@@ -55,16 +55,10 @@ export default function StakeComponent({
         })}
       </List>
     </Container>
-    </centerContainer>
+    
   );
 }
-const centerContainer = styled.div`
-    display:flex;
-    justify-content:center
-    align-items:center;
-    margin-top:10%;
 
-`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -88,6 +82,7 @@ const Item = styled.li`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.75rem;
+  color: white;
 `;
 
 const Address = styled.span`
@@ -96,6 +91,7 @@ const Address = styled.span`
 
 const Button = styled.button`
   padding: 0.4rem 0.8rem;
+  margin: 10px;
   background: #cf89ff;
   color: white;
   border: none;

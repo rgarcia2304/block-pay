@@ -1,100 +1,76 @@
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import HomeButton from '../ButtonsInfo/HomeButton';
-import React, { useState, useEffect, useRef } from "react";
 import { ethers } from 'ethers';
-import { CONTRACT_ABI,CONTRACT_ADDRESS } from '@/blockchain/contract';
+
+import HomeButton from '../ButtonsInfo/HomeButton';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/blockchain/contract';
 import GroupForm from './CreateGroupForm';
 import StakeComponent from './StakeComponent';
 import VoteComponent from './VoteComponent';
 import ResultsComponent from './Results';
 
-const Hero = () => {
- 
-  const [provider,         setProvider]         = useState(null);
-  const [contract,         setContract]         = useState(null);
-  const [account,          setAccount]          = useState("");
-  const [isConnected,      setIsConnected]      = useState(false);
+export default function Hero() {
+  const [provider, setProvider]       = useState(null);
+  const [contract, setContract]       = useState(null);
+  const [account, setAccount]         = useState("");
+  const [isConnected, setIsConnected] = useState(false);
 
- 
-  const [stage,            setStage]            = useState("connect");
-  const [groupId,          setGroupId]          = useState(null);
-  const [members,          setMembers]          = useState([]);
-  const [requiredStake,    setRequiredStake]    = useState("");   // string in AVAX
-  const [stakeStatuses,    setStakeStatuses]    = useState([]);   // [bool,bool,…]
-  const [voteStatuses,     setVoteStatuses]     = useState([]);   // [bool,bool,…]
-  const [winner,           setWinner]           = useState("");
+  const [stage, setStage]         = useState("connect");
+  const [groupId, setGroupId]     = useState(null);
+  const [members, setMembers]     = useState([]);
+  const [requiredStake, setRequiredStake] = useState("");  
+  const [stakeStatuses, setStakeStatuses] = useState([]);  
+  const [voteStatuses, setVoteStatuses]   = useState([]); 
+  const [winner, setWinner]               = useState("");
 
-  const [loading,          setLoading]          = useState(false);
-  const [error,            setError]            = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState("");
 
- 
+  // — on provider set, wire up your contract
   useEffect(() => {
     if (!provider) return;
     const signer = provider.getSigner();
-    const ctr    = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-    setContract(ctr);
+    setContract(new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer));
   }, [provider]);
 
-
+  // — watch for account changes
   useEffect(() => {
     if (!window.ethereum) return;
-    const handleAccountsChanged = (accounts) => {
-      if (accounts.length > 0) {
+    const handler = (accounts) => {
+      if (accounts.length) {
         setAccount(accounts[0]);
       } else {
-        // user disconnected
+        // user locked / disconnected
         setAccount("");
         setIsConnected(false);
         setStage("connect");
       }
     };
-    window.ethereum.on("accountsChanged", handleAccountsChanged);
-    return () => {
-      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
-    };
+    window.ethereum.on("accountsChanged", handler);
+    return () => window.ethereum.removeListener("accountsChanged", handler);
   }, []);
 
+  // — auto-advance when EVERY stakeStatuses entry flips true
+  useEffect(() => {
+    if (stage === "stake" && stakeStatuses.length === members.length) {
+      if (stakeStatuses.every(Boolean)) {
+        console.log("🦅 all staked → moving to vote stage");
+        setStage("vote");
+      }
+    }
+  }, [stakeStatuses, stage, members.length]);
 
   useEffect(() => {
-    if (stage !== "stake" || !contract || !groupId) return;
-
-    async function reloadStakeStatuses() {
-      const info = await contract.getGroupInfo(groupId);
-      setMembers(info.members);
-
-      
-      const arr = await Promise.all(
-        info.members.map((addr) =>
-          contract.hasStakedInGroup(groupId, addr)
-        )
-      );
-      setStakeStatuses(arr);
+    if (stage === "vote" &&
+        voteStatuses.length === members.length &&
+        voteStatuses.every(Boolean)
+    ) {
+      console.log("all voted, triggering payout");
+      presentWinner();
     }
-
-    reloadStakeStatuses();
-  }, [stage, contract, groupId, account]);
+  }, [voteStatuses, stage, members.length]);
 
 
-  
-  useEffect(() => {
-    if (stage !== "vote" || !contract || !groupId) return;
-
-    async function reloadVoteStatuses() {
-      const info = await contract.getGroupInfo(groupId);
-      setMembers(info.members);
-
-      const arr = await Promise.all(
-        info.members.map((addr) =>
-          contract.hasVotedInGroup(groupId, addr)
-        )
-      );
-      setVoteStatuses(arr);
-    }
-
-    reloadVoteStatuses();
-  }, [stage, contract, groupId, account]);
-
- 
   async function connectToMetamask() {
     if (!window.ethereum) {
       console.error("MetaMask not found");
@@ -104,31 +80,34 @@ const Hero = () => {
     await prov.send("eth_requestAccounts", []);
     const signer  = prov.getSigner();
     const address = await signer.getAddress();
-
     setProvider(prov);
     setAccount(address);
     setIsConnected(true);
     setStage("create");
   }
 
- 
-  async function createGroupHandler({ bill, members }) {
-    setError("");
-    setLoading(true);
+  async function createGroupHandler({ bill, members: initialMembers }) {
+    setError(""); setLoading(true);
     try {
       const wei = ethers.utils.parseEther(bill);
-      const tx  = await contract.createGroup(wei, members);
-      const { events } = await tx.wait();
+      const tx  = await contract.createGroup(wei, initialMembers);
+      const receipt = await tx.wait();
 
-      const newId = events
-        .find((e) => e.event === "GroupCreated")
+      const newId = receipt.events
+        .find(e => e.event === "GroupCreated")
         .args.id.toNumber();
       setGroupId(newId);
 
-  
+      // seed UI with on-chain info
       const info = await contract.getGroupInfo(newId);
       setMembers(info.members);
       setRequiredStake(ethers.utils.formatEther(info.requiredStake));
+
+      // initial stakeStatuses
+      const stArr = await Promise.all(
+        info.members.map(addr => contract.hasStakedInGroup(newId, addr))
+      );
+      setStakeStatuses(stArr);
 
       setStage("stake");
     } catch (err) {
@@ -138,27 +117,29 @@ const Hero = () => {
     }
   }
 
-  
   async function stakeHandler() {
-    setError("");
-    setLoading(true);
+    setError(""); setLoading(true);
     try {
       const wei = ethers.utils.parseEther(requiredStake);
       const tx  = await contract.individualStake(groupId, { value: wei });
       await tx.wait();
 
-      // re-fetch to see if we move to voting
       const info = await contract.getGroupInfo(groupId);
+
+   
+      console.log(
+        `stakesAmount = ${info.stakesAmount.toNumber()} / ${info.members.length}`
+      );
+
+      setMembers(info.members);
+      const stArr = await Promise.all(
+        info.members.map(addr => contract.hasStakedInGroup(groupId, addr))
+      );
+      setStakeStatuses(stArr);
+
       if (info.stakesAmount.toNumber() === info.members.length) {
+        console.log("all have staked");
         setStage("vote");
-      } else {
-        // reloadIndividual statuses so button disappears
-        const arr = await Promise.all(
-          info.members.map((addr) =>
-            contract.hasStakedInGroup(groupId, addr)
-          )
-        );
-        setStakeStatuses(arr);
       }
     } catch (err) {
       setError(err.errorArgs?.message || err.message);
@@ -167,30 +148,22 @@ const Hero = () => {
     }
   }
 
- 
   async function votingHandler(member) {
     setError("");
     setLoading(true);
     try {
+      // 1) send the vote tx
       const tx = await contract.voting(groupId, member);
       await tx.wait();
-
-      const stageOnChain = await contract.getStage(groupId);
-      const n = stageOnChain._isBigNumber
-        ? stageOnChain.toNumber()
-        : Number(stageOnChain);
-
-      if (n === 3) {
-        await presentWinner();
-      } else {
-        
-        const arr = await Promise.all(
-          members.map((addr) =>
-            contract.hasVotedInGroup(groupId, addr)
-          )
-        );
-        setVoteStatuses(arr);
-      }
+  
+      // 2) pull down the fresh member list + who has voted
+      const info = await contract.getGroupInfo(groupId);
+      setMembers(info.members);
+      const arr = await Promise.all(
+        info.members.map(addr => contract.hasVotedInGroup(groupId, addr))
+      );
+      setVoteStatuses(arr);
+  
     } catch (err) {
       setError(err.errorArgs?.message || err.message);
     } finally {
@@ -198,10 +171,8 @@ const Hero = () => {
     }
   }
 
-
   async function presentWinner() {
-    setError("");
-    setLoading(true);
+    setError(""); setLoading(true);
     try {
       await contract.electDelegate(groupId);
       const w = await contract.currentVoteLeader(groupId);
@@ -214,17 +185,16 @@ const Hero = () => {
     }
   }
 
-
   return (
     <Section>
       {stage === "connect" && (
         <>
-        <HeaderBig> Create Your Group</HeaderBig>
-        <ButtonContainer>
-          <HomeButton connectWallet={connectToMetamask}>
-            Connect Wallet
-          </HomeButton>
-        </ButtonContainer>
+          <HeaderBig>Connect your wallet</HeaderBig>
+          <ButtonContainer>
+            <HomeButton connectWallet={connectToMetamask}>
+              Connect Wallet
+            </HomeButton>
+          </ButtonContainer>
         </>
       )}
 
@@ -269,31 +239,19 @@ const Hero = () => {
 const Section = styled.section`
   width: 100%;
   text-align: center;
+  margin-top: 5%;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  margin-top: 10%;
 `;
+
 const ButtonContainer = styled.div`
   margin-top: 2rem;
 `;
 
-const HeaderBig = styled.div`
-  font-family: sans-serif;
-  font-size: 45px;
-  text-align: center;
-  width: 55%;
-  font-weight: 600;
-  margin-bottom: 100px;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  gap: 1rem;
-  align-items:center;
-  color:white;
+const HeaderBig = styled.h2`
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 1rem;
 `;
-
-
-
-export default Hero;
