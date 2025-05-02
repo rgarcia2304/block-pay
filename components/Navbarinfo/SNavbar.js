@@ -19,10 +19,9 @@ const SNavbar = ({ scrollTargetRef }) => {
       </Hamburger>
 
       <Right_Items open={open}>
-        <Home />
+        <Home/>
         <NavItem href="/about">About</NavItem>
         <NavItem href="/contact">Contact</NavItem>
-        <MaskMeta></MaskMeta>
       </Right_Items>
     </Nav>
   );

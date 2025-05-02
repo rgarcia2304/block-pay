@@ -1,5 +1,5 @@
 
-export const CONTRACT_ADDRESS = "0xa3De9a107743c110ff1C32cf80742f66175532E8";
+export const CONTRACT_ADDRESS = "0x26dBa877954d66Ae16A0BcbBCA2443ccfafff1d2";
 export const CONTRACT_ABI = 
 
 [
@@ -104,6 +104,31 @@ export const CONTRACT_ABI =
 		"anonymous": false,
 		"inputs": [],
 		"name": "VotingClosed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "groupId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "winner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "WinnerPaid",
 		"type": "event"
 	},
 	{
