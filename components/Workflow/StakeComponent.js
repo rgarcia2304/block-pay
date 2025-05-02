@@ -2,61 +2,80 @@ import React from 'react';
 import styled from 'styled-components';
 
 export default function StakeComponent({
-  members = [],
-  account = '',
-  requiredStake = '0.0',
-  onStake,
-  loading = false,
-  error = '',
+  members = [],               // array of addresses
+  stakeStatuses = [],         // parallel array of booleans
+  account = '',               // connected wallet
+  requiredStake = '0.0',      // e.g. "0.1"
+  onStake,                    // callback to stake
+  loading = false,            // is tx in flight?
+  error = '',                 // error message
 }) {
   const lowerMe = account.toLowerCase();
 
   return (
-    
+    <centerContainer>
     <Container>
       <Title>Stake your share ({requiredStake} AVAX)</Title>
       {error && <Error>{error}</Error>}
 
       <List>
-        {members.map(addr => {
-          const isMe = addr.toLowerCase() === lowerMe;
-          return (
-            <Item key={addr}>
-              <Address>{addr}</Address>
-              {isMe ? (
+        {members.map((addr, idx) => {
+          const lower = addr.toLowerCase();
+          const hasStaked = stakeStatuses[idx];
+
+          // 1) Already staked → waiting message
+          if (hasStaked) {
+            return (
+              <Item key={addr}>
+                <Address>{addr}</Address>
+                <Status>Waiting for others to stake…</Status>
+              </Item>
+            );
+          }
+
+          // 2) Connected user (and not yet staked) → show button
+          if (lower === lowerMe) {
+            return (
+              <Item key={addr}>
+                <Address>{addr}</Address>
                 <Button onClick={onStake} disabled={loading}>
                   {loading ? 'Staking…' : 'Stake'}
                 </Button>
-              ) : (
-                <Placeholder>—</Placeholder>
-              )}
+              </Item>
+            );
+          }
+
+          // 3) Other members who haven’t staked yet → placeholder
+          return (
+            <Item key={addr}>
+              <Address>{addr}</Address>
+              <Placeholder>—</Placeholder>
             </Item>
           );
         })}
       </List>
-
-      {loading && <Status>Waiting for transaction…</Status>}
     </Container>
-    
+    </centerContainer>
   );
 }
+const centerContainer = styled.div`
+    display:flex;
+    justify-content:center
+    align-items:center;
+    margin-top:10%;
 
-const Section = styled.div`
-  display:flex;
-  flex-direction: row;
-  justify-content:center;
 `
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-   width: 50%;
+  width: 80%;
 
 `;
 
 const Title = styled.h2`
   color: #cf89ff;
+  text-align: center;
 `;
 
 const List = styled.ul`
@@ -66,9 +85,9 @@ const List = styled.ul`
 
 const Item = styled.li`
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
 `;
 
 const Address = styled.span`
@@ -92,10 +111,12 @@ const Placeholder = styled.span`
   color: #555;
 `;
 
-const Error = styled.div`
-  color: #ff6b6b;
+const Status = styled.span`
+  color: #999;
+  font-style: italic;
 `;
 
-const Status = styled.div`
-  color: #999;
+const Error = styled.div`
+  color: #ff6b6b;
+  text-align: center;
 `;

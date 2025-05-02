@@ -1,4 +1,3 @@
-// components/VoteComponent.jsx
 import React from 'react';
 import styled from 'styled-components';
 
@@ -80,3 +79,4 @@ const Error = styled.div`
 const Status = styled.div`
   color: #999;
 `;
+  

@@ -1,4 +1,3 @@
-import Link  from 'next/link';
 import styled from 'styled-components';
 import React, { useState } from 'react';
 
@@ -71,7 +70,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: 50%;
+  width: 100%;
 `;
 
 const Field = styled.div`

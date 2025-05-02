@@ -1,5 +1,5 @@
 
-export const CONTRACT_ADDRESS = "0xdBF43887f58a930D10f6AC0733429051ab44eaFa";
+export const CONTRACT_ADDRESS = "0xa3De9a107743c110ff1C32cf80742f66175532E8";
 export const CONTRACT_ABI = 
 
 [
@@ -36,6 +36,11 @@ export const CONTRACT_ABI =
 	{
 		"inputs": [],
 		"name": "TimeExpired",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "WrongStage",
 		"type": "error"
 	},
 	{
@@ -127,50 +132,6 @@ export const CONTRACT_ABI =
 				"type": "uint256"
 			}
 		],
-		"name": "electDelegate",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			}
-		],
-		"name": "individualStake",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "vote",
-				"type": "address"
-			}
-		],
-		"name": "voting",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			}
-		],
 		"name": "currentVoteLeader",
 		"outputs": [
 			{
@@ -180,6 +141,19 @@ export const CONTRACT_ABI =
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "electDelegate",
+		"outputs": [],
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -333,6 +307,85 @@ export const CONTRACT_ABI =
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "member",
+				"type": "address"
+			}
+		],
+		"name": "hasStakedInGroup",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "member",
+				"type": "address"
+			}
+		],
+		"name": "hasVotedInGroup",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "individualStake",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "vote",
+				"type": "address"
+			}
+		],
+		"name": "voting",
+		"outputs": [],
+		"stateMutability": "payable",
 		"type": "function"
 	}
 ]
