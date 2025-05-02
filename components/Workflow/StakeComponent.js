@@ -12,6 +12,7 @@ export default function StakeComponent({
   const lowerMe = account.toLowerCase();
 
   return (
+    
     <Container>
       <Title>Stake your share ({requiredStake} AVAX)</Title>
       {error && <Error>{error}</Error>}
@@ -36,13 +37,22 @@ export default function StakeComponent({
 
       {loading && <Status>Waiting for transaction…</Status>}
     </Container>
+    
   );
 }
+
+const Section = styled.div`
+  display:flex;
+  flex-direction: row;
+  justify-content:center;
+`
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+   width: 50%;
+
 `;
 
 const Title = styled.h2`

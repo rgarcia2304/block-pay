@@ -12,116 +12,97 @@ import ResultsComponent from './Results';
 
 const Hero = ({ scrollRef }) => {
   //functionallity to connect to metamask
-  const [provider,setProvider] = useState(null);
-  const [account,setAccount] = useState(null);
-  const[isConnected, setIsConnected] = useState(false);
-  const[groupSize,setGroupSize] = useState(null);
-  const[stage,setStage] = useState("connect");
-  const [groupId, setGroupId] = useState(null);
-  const [winner,setWinner] = useState(null);
-  
-  // after you’ve connected and have `provider` and `account`…
+  const [provider, setProvider] = useState(null);
+  const [contract, setContract] = useState(null);
+  const [account, setAccount]   = useState('');
+  const [isConnected, setIsConnected] = useState(false);
 
-  const [requiredStakeString, setRequiredStakeString] = useState('');  // e.g. "0.1"
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [stage, setStage]       = useState('connect');
+  const [groupId, setGroupId]   = useState(null);
+  const [members, setMembers]   = useState([]);
+  const [requiredStakeString, setRequiredStakeString] = useState('');
+  const [winner, setWinner]     = useState('');
+
+ 
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
 
 
-
-  useEffect( ()=> {
-    // getCurrentStatus()
-    if(window.ethereum){
-      window.ethereum.on("accountsChanged",handleAccountsChanged);
-    }
-    return() =>{
-      if(window.ethereum){
-        window.ethereum.removeListener("accountsChanged",handleAccountsChanged);
-      }
-    }
-  })
-
-  async function getCurrentStatus(){
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts",[]);
+  useEffect(() => {
+    if (!provider) return;
     const signer = provider.getSigner();
-    const contract = new ethers.Contract(
-      CONTRACT_ADDRESS,CONTRACT_ABI,signer
+    const ctr = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      CONTRACT_ABI,
+      signer
     );
-    const status = await contract.getGroupSize(1);
-    setGroupSize(status);
-    console.log(groupSize);
-  }
-  function handleAccountsChanged(accounts){
-    if(accounts.length > 0 && account != accounts[0]){
-      setAccount(accounts[0]);
-    }
-    else{
-      setIsConnected(false);
-      setAccount(null);
-    }
-  }
-  async function connectToMetamask(){
-    if(window.ethereum){
-      try{
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        setProvider(provider);
-        await provider.send("eth_requestAccounts",[]);
-        const signer = provider.getSigner(); //whos connected to current account
-        const address = await signer.getAddress();
-        setAccount(address);
-        console.log("Metamask Connected: ", address);
-        setIsConnected(true);
-        setStage("create");
-      }catch(err){
-        console.error(err);
-      } 
-    }
-    else{
-      console.error("Metamask is not detected in the browser");
-    }
-  }
+    setContract(ctr);
+  }, [provider]);
 
-  async function createGroupHandler({bill,members}){
+  
+  useEffect(() => {
+    if (!window.ethereum) return;
+    const onAccountsChanged = (accounts) => {
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+      } else {
+        setAccount('');
+        setIsConnected(false);
+        setStage('connect');
+      }
+    };
+    window.ethereum.on('accountsChanged', onAccountsChanged);
+    return () => {
+      window.ethereum.removeListener('accountsChanged', onAccountsChanged);
+    };
+  }, []);
 
-    setError('');
-    setLoading(true);
+  async function connectToMetamask() {
+    if (!window.ethereum) {
+      console.error('MetaMask not found');
+      return;
+    }
     try {
-      // parse bill ("0.3") → wei
-      const wei = ethers.utils.parseEther(bill);
-      const tx  = await contract.createGroup(wei, membersInput);
-      const receipt = await tx.wait();
-
-      // get new group ID from event
-      const id = receipt.events
-        .find(e => e.event === 'GroupCreated')
-        .args.id.toNumber();
-      setGroupId(id);
-
-      // fetch group info to seed members & requiredStake
-      const [
-        ,            // owner
-        ,            // billAmount
-        rawStake,    // requiredStake
-        ,            // staking_start
-        ,            // staking_deadline
-        ,            // state
-        ,            // stakesAmount
-        ,            // totalStaked
-        memberList
-      ] = await contract.getGroupInfo(id);
-
-      setMembers(memberList);
-      setRequiredStakeString(ethers.utils.formatEther(rawStake));
-      setStage('stake');
+      const prov = new ethers.providers.Web3Provider(window.ethereum);
+      setProvider(prov);
+      await prov.send('eth_requestAccounts', []);
+      const signer  = prov.getSigner();
+      const address = await signer.getAddress();
+      setAccount(address);
+      setIsConnected(true);
+      setStage('create');
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  
+  async function createGroupHandler({ bill, members }) {
+    setError(''); setLoading(true);
+    try {
+      const wei = ethers.utils.parseEther(bill);
+      const tx  = await contract.createGroup(wei, members);
+      const receipt = await tx.wait();
+
+      const newId = receipt.events
+        .find(e => e.event === 'GroupCreated')
+        .args.id.toNumber();
+      setGroupId(newId);
+
+      // fetch the group struct
+      const info = await contract.getGroupInfo(newId);
+      setMembers(info.members);                                         // <—
+      setRequiredStakeString(ethers.utils.formatEther(info.requiredStake));
+
+      setStage('stake');
+    } catch (err) {
       setError(err.errorArgs?.message || err.message);
     } finally {
       setLoading(false);
     }
-
   }
 
+  
   async function stakeHandler() {
     setError('');
     setLoading(true);
@@ -130,19 +111,9 @@ const Hero = ({ scrollRef }) => {
       const tx  = await contract.individualStake(groupId, { value: wei });
       const receipt = await tx.wait();
 
-      // optional: log from event
-      const evt = receipt.events.find(e => e.event === 'MemberHasStaked');
-      console.log(`Member ${evt.args.payer} staked in group ${evt.args.id}`);
-
-      // re-fetch to see if everyone staked
-      const [
-        , , ,
-        , , ,
-        stakesAmount,
-        ,,
-      ] = await contract.getGroupInfo(groupId);
-
-      if (stakesAmount.toNumber() === members.length) {
+      // re-fetch to see if everyone has staked
+      const info = await contract.getGroupInfo(groupId);
+      if (info.stakesAmount.toNumber() === info.members.length) {
         setStage('vote');
       }
     } catch (err) {
@@ -153,17 +124,19 @@ const Hero = ({ scrollRef }) => {
     }
   }
 
-  async function votingHandler({member}){
+
+  async function votingHandler(member) {
     setError('');
     setLoading(true);
     try {
       const tx = await contract.voting(groupId, member);
       await tx.wait();
-
-      // check if on-chain stage = Completed (3)
+  
+      
       const onChainStage = await contract.getStage(groupId);
       if (onChainStage === 3) {
-        setStage('completed');
+        // as soon as voting finishes, trigger the payout + fetch winner
+        await presentWinner();
       }
     } catch (err) {
       console.error(err);
@@ -173,7 +146,7 @@ const Hero = ({ scrollRef }) => {
     }
   }
 
-  async function presentWinner(){
+  async function presentWinner() {
     setError('');
     setLoading(true);
     try {
@@ -193,14 +166,11 @@ const Hero = ({ scrollRef }) => {
   return (
     <Section>
       {stage === 'connect' && (
-        <> 
         <ButtonContainer>
-        <Header> Start by Clicking the Button</Header>
           <HomeButton connectWallet={connectToMetamask}>
             Connect Wallet
           </HomeButton>
         </ButtonContainer>
-        </>
       )}
 
       {stage === 'create' && (

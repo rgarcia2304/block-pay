@@ -29,6 +29,7 @@ export default function CreateGroupForm({ onSubmit }) {
   };
 
   return (
+    <Section>
     <Form onSubmit={handleSubmit}>
       <Field>
         <Label htmlFor="bill">Total Bill (AVAX)</Label>
@@ -57,9 +58,14 @@ export default function CreateGroupForm({ onSubmit }) {
 
       <Submit type="submit">Create Group</Submit>
     </Form>
+    </Section>
   );
 }
-
+const Section = styled.div`
+  display:flex;
+  flex-direction: row;
+  justify-content:center;
+`
 const Form = styled.form`
   margin-top: 10%;
   display: flex;
