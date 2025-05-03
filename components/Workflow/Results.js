@@ -18,11 +18,13 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  font-family: sans-serif;
   gap: 1rem;
 `;
 
 const Heading = styled.h2`
   color: #cf89ff;
+  font-family: sans-serif;
 `;
 
 const Label = styled.p`

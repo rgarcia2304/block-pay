@@ -64,17 +64,19 @@ const Container = styled.div`
   flex-direction: column;
   gap: 1rem;
   width: 50%;
-
+font-family: sans-serif;
 `;
 
 const Title = styled.h2`
   color: #cf89ff;
   text-align: center;
+  font-family: sans-serif;
 `;
 
 const List = styled.ul`
   list-style: none;
   padding: 0;
+  font-family: sans-serif;
 `;
 
 const Item = styled.li`
@@ -83,10 +85,11 @@ const Item = styled.li`
   align-items: center;
   margin-bottom: 0.75rem;
   color: white;
+  font-family: sans-serif;
 `;
 
 const Address = styled.span`
-  font-family: monospace;
+  font-family: sans-serif;
 `;
 
 const Button = styled.button`

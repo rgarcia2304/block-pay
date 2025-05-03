@@ -313,7 +313,7 @@ const Biglogo = styled.div`
     height: 200px;
   }
   
-  &hover{
+  &:hover{
   color:white;
   }
 `;

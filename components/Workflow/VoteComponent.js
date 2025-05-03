@@ -62,36 +62,44 @@ const Container   = styled.div`
   max-width: 480px;
   margin: 0 auto;
   text-align: center;
+  font-family: sans-serif;
 `;
 const Title       = styled.h2`
   color: #cf89ff;
   margin-bottom: 1rem;
+  font-family: sans-serif;
 `;
 const Error       = styled.div`
   color: #ff6b6b;
   margin-bottom: 1rem;
+  font-family: sans-serif;
 `;
 const Waiting     = styled.p`
   font-size: 1.1rem;
   color: #999;
+  font-family: sans-serif;
 `;
 const MembersList = styled.ul`
   list-style: none;
   padding: 0;
+  font-family: sans-serif;
   margin-bottom: 1.5rem;
 `;
 const Member      = styled.li`
   font-family: sans-serif;
   margin: 0.3rem 0;
+  font-family: sans-serif;
 `;
 const Address     = styled.span`
   color: white;
+  font-family: sans-serif;
 `;
 const Form        = styled.form`
   display: flex;
   gap: 0.5rem;
   justify-content: center;
   border-radius: 10px;
+  font-family: sans-serif;
 `;
 const Input       = styled.input`
   flex: 1;
