@@ -64,23 +64,27 @@ const Section = styled.div`
   display:flex;
   flex-direction: row;
   justify-content:center;
+  font-family: sans-serif;
 `
 const Form = styled.form`
   margin-top: 10%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  font-family: sans-serif;
   width: 100%;
 `;
 
 const Field = styled.div`
   display: flex;
   flex-direction: column;
+  font-family: sans-serif;
 `;
 
 const Label = styled.label`
   margin-bottom: 0.25rem;
   font-weight: 600;
+  font-family: sans-serif;
   color: #cf89ff;
 `;
 
@@ -88,6 +92,7 @@ const Input = styled.input`
   padding: 0.5rem;
   border: 1px solid #444;
   border-radius: 10px;
+  font-family: sans-serif;
   color: white;
 `;
 
@@ -97,6 +102,7 @@ const Textarea = styled.textarea`
   border-radius: 4px;
   resize: vertical;
   min-height: 4rem;
+  font-family: sans-serif;
   color: white;
 `;
 
@@ -108,9 +114,11 @@ const Submit = styled.button`
   border-radius: 4px;
   font-weight: 600;
   cursor: pointer;
+  font-family: sans-serif;
 `;
 
 const ErrorMessage = styled.div`
   color: #ff6b6b;
   font-size: 0.9rem;
+  font-family: sans-serif;
 `;

@@ -9,6 +9,7 @@ import StakeComponent from './StakeComponent';
 import VoteComponent from './VoteComponent';
 import ResultsComponent from './Results';
 import Group from '../LandingPage/Group';
+import { GrStakeholder } from "react-icons/gr";
 import Vote from '../LandingPage/Vote';
 import { GrAtm } from "react-icons/gr";
 
@@ -16,6 +17,7 @@ export default function Hero() {
   const [provider, setProvider]       = useState(null);
   const [contract, setContract]       = useState(null);
   const [account, setAccount]         = useState("");
+  const [isConnected, setIsConnected] = useState(false);
 
   const [stage, setStage]         = useState("connect");
   const [groupId, setGroupId]     = useState(null);
@@ -52,11 +54,11 @@ export default function Hero() {
     return () => window.ethereum.removeListener("accountsChanged", handler);
   }, []);
 
-  //  advances the application when we have signed in 
+  // — auto-advance when EVERY stakeStatuses entry flips true
   useEffect(() => {
     if (stage === "stake" && stakeStatuses.length === members.length) {
       if (stakeStatuses.every(Boolean)) {
-        console.log(" everyone has staked");
+        console.log("everyone has stake");
         setStage("vote");
       }
     }
@@ -100,6 +102,7 @@ export default function Hero() {
         .args.id.toNumber();
       setGroupId(newId);
 
+      // seed UI with on-chain info
       const info = await contract.getGroupInfo(newId);
       setMembers(info.members);
       setRequiredStake(ethers.utils.formatEther(info.requiredStake));
@@ -127,7 +130,7 @@ export default function Hero() {
 
       const info = await contract.getGroupInfo(groupId);
 
-      //logs how many members have voted 
+   
       console.log(
         `stakesAmount = ${info.stakesAmount.toNumber()} / ${info.members.length}`
       );
@@ -308,4 +311,3 @@ svg {
   color: white;
 }
 `;
- 
