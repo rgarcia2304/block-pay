@@ -1,4 +1,3 @@
-// components/Hero.js
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ethers } from 'ethers';
@@ -310,15 +309,19 @@ const Biglogo = styled.div`
   color: #cf89ff;
   padding: 1rem;
   svg {
-    width: 100px;
-    height: 100px;
+    width: 200px;
+    height: 200px;
+  }
+  
+  &hover{
+  color:white;
   }
 `;
 
 const Biggishlogo = styled(Biglogo)`
   svg {
-    width: 80px;
-    height: 80px;
+    width: 200px;
+    height: 200px;
   }
 `;
 
